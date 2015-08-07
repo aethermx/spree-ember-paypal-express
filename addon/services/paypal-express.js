@@ -26,11 +26,35 @@ export default Ember.Service.extend({
     return origin + '/' + this.get('config.confirmUrl');
   },
 
+  _setActivePayment: function() {
+
+    let paymentMethodId = this.spree.paypalExpress.get('config.paymentMethodId');
+
+    let currentOrder = this.spree.get('currentOrder');
+    
+    // By setting the state of each payment
+    // a computed property in model:order will trigger and set
+    // the value for spree.currentOrder.activePayment
+    currentOrder.get('payments').forEach(payment => {
+      let paymentMethod = payment.get('paymentMethod');
+      if (paymentMethod.get('id') === '' + paymentMethodId) {
+        payment.set('state', 'valid');
+      } else {
+        payment.set('state', 'invalid');
+      }
+    }); 
+
+    Ember.assert('An active payment has been enabled.',
+                 !isNaN(currentOrder.get('activePayment.paymentMethod.id')));
+  },
+
   /*
     @method getRedirectUrl
     @return {Promise} promise
   */
   getRedirectUrl: function() {
+    this._setActivePayment();
+
     let adapter = this.container.lookup('adapter:paypal');
 
     let url = adapter.buildURL('paypal'); 
