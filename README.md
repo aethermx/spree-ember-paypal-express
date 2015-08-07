@@ -1,7 +1,10 @@
 # Spree-ember-paypal-express
+[![Build Status](https://travis-ci.org/givanse/spree-ember-paypal-express.svg?branch=master)](https://travis-ci.org/givanse/spree-ember-paypal-express)
 [![Code Climate](https://codeclimate.com/github/givanse/spree-ember-paypal-express/badges/gpa.svg)](https://codeclimate.com/github/givanse/spree-ember-paypal-express)
 
-spree-ember addon for the gem better_spree_paypal_express
+[spree-ember](https://github.com/hhff/spree-ember)
+addon for the gem
+[better_spree_paypal_express](https://github.com/spree-contrib/better_spree_paypal_express)
 
 Currently this addon is meant to be used with Spree `2-4-stable`.
 
@@ -51,9 +54,9 @@ ENV['paypal-express'] = {
 `paymentMethodId` is the `id` of the `better_spree_paypal_express` payment method
 that you want to use for every order. You must have configured this through the Spree admin.
 
-`cancelUrl` is the URL used for the "cancel" link in the PayPal pay screen.
+`cancelUrl` is the spree-ember route where the user is directed after clicking the "cancel" link in the PayPal pay screen.
 
-`confirmUrl`
+`confirmUrl` is the spree-ember route where the user is directed after completing the payment process with PayPal.
 
 # Development
 
