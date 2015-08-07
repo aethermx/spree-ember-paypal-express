@@ -1,6 +1,13 @@
 # Spree-ember-paypal-express
 
-This README outlines the details of collaborating on this Ember addon.
+spree-ember addon for the gem better_spree_paypal_express
+
+## Install
+
+    # not available yet, coming soon
+    ember install spree-ember-paypal-express
+
+# Development
 
 ## Installation
 
