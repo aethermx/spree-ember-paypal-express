@@ -1,0 +1,1 @@
+export { default } from 'spree-ember-paypal-express/services/paypal-express';
