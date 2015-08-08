@@ -38,7 +38,7 @@ export default Ember.Service.extend({
     currentOrder.get('payments').forEach(payment => {
       let paymentMethod = payment.get('paymentMethod');
       if (paymentMethod.get('id') === '' + paymentMethodId) {
-        payment.set('state', 'valid');
+        payment.set('state', 'valid'); // 'valid' is what seems a safe guess
       } else {
         payment.set('state', 'invalid');
       }

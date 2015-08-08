@@ -1,7 +1,7 @@
 {
   "name": "spree-ember-paypal-express",
-  "version": "0.0.0",
-  "description": "The default blueprint for ember-cli addons.",
+  "version": "2.4.0",
+  "description": "spree-ember addon for the gem better_spree_paypal_express",
   "directories": {
     "doc": "doc",
     "test": "tests"
@@ -11,11 +11,11 @@
     "build": "ember build",
     "test": "ember try:testall"
   },
-  "repository": "",
+  "repository": "https://github.com/givanse/spree-ember-paypal-express",
   "engines": {
     "node": ">= 0.10.0"
   },
-  "author": "",
+  "author": "@givanse",
   "license": "MIT",
   "devDependencies": {
     "broccoli-asset-rev": "^2.0.2",
@@ -39,7 +39,11 @@
     "spree-ember-core": "0.0.1-beta.1"
   },
   "keywords": [
-    "ember-addon"
+    "ember-addon",
+    "spree-ember",
+    "spree",
+    "paypal",
+    "ecommerce"
   ],
   "dependencies": {
     "ember-cli-babel": "^5.0.0"
