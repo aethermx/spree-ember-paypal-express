@@ -1,6 +1,6 @@
 {
   "name": "spree-ember-paypal-express",
-  "version": "2.4.0",
+  "version": "2.4.0-beta.1",
   "description": "spree-ember addon for the gem better_spree_paypal_express",
   "directories": {
     "doc": "doc",

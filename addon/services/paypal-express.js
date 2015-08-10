@@ -38,7 +38,8 @@ export default Ember.Service.extend({
     currentOrder.get('payments').forEach(payment => {
       let paymentMethod = payment.get('paymentMethod');
       if (paymentMethod.get('id') === '' + paymentMethodId) {
-        payment.set('state', 'valid'); // 'valid' is what seems a safe guess
+        // We are defining payment details, thats the state Spree would use
+        payment.set('state', 'payment'); 
       } else {
         payment.set('state', 'invalid');
       }
