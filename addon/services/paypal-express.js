@@ -2,6 +2,12 @@ import Ember from 'ember';
 
 export default Ember.Service.extend({
 
+  adapter: null,
+
+  _loadAdapter: Ember.on('init', function() {
+    this.adapter = this.container.lookup('adapter:paypal');
+  }),
+
   /**
     A copy of the "paypal-express" entry in the Host Application environment config.
     @property config
@@ -26,6 +32,10 @@ export default Ember.Service.extend({
     return origin + '/' + this.get('config.confirmUrl');
   },
 
+  /*
+    Ensures that the payment method configured in ENV['paypal-express'] is the
+    one selected for the order checkout.
+  */
   _setActivePayment: function() {
 
     let paymentMethodId = this.spree.paypalExpress.get('config.paymentMethodId');
@@ -50,15 +60,15 @@ export default Ember.Service.extend({
   },
 
   /*
+    Spree::Api::PaypalController#express
+
     @method getRedirectUrl
     @return {Promise} promise
   */
   getRedirectUrl: function() {
     this._setActivePayment();
 
-    let adapter = this.container.lookup('adapter:paypal');
-
-    let url = adapter.buildURL('paypal'); 
+    let url = this.adapter.buildURL('paypal'); 
 
     let params = {
       data: {
@@ -69,7 +79,30 @@ export default Ember.Service.extend({
       }
     };
 
-    return adapter.ajax(url, 'POST', params);
+    return this.adapter.ajax(url, 'POST', params);
+  },
+
+  /*
+    Spree::Api::PaypalController#confirm
+
+    @method confirm 
+    @param  {String}  token 
+    @param  {String}  PayerID 
+    @return {Promise} order 
+  */
+  confirm: function(token, PayerID) {
+    let url = [this.adapter.buildURL('paypal'), 'confirm'].join('/'); 
+
+    let params = {
+      data: {
+        order_id: this.get('spree.orderId'),
+        payment_method_id: this.get('config.paymentMethodId'),
+        token: token,
+        PayerID: PayerID
+      }
+    };
+
+    return this.adapter.ajax(url, 'POST', params);
   }
 
 });
