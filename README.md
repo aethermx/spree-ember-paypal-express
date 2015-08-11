@@ -34,14 +34,46 @@ package.js
 
 ## Usage
 
-This addon adds an ember service called `paypal-express`.
-You can access it through the `spree-ember` service like this:
+This addon adds an ember service, `paypal-express`, and it is injected into
+the `spree` service so you can access it from anywhere in your code. Ex:
 
-    this.spree.paypalExpress.getRedirectURL();
+```bash
+  actions: {
+    initPaypalExpress: function() {
+      this.spree.paypalExpress.getRedirectURL().then(response => {
+        // redirect to PayPal express
+        window.open(response.redirect_url, '_self');
+      });
+    }
+  }
+```
+
+When a payment is completed through PayPal, the page will redirect to
+the route `confirmUrl`.
+
+```bash
+// ENV['paypal-express'].confirmUrl
+// defaults to spree.checkout
+
+  beforeModel: function(transition) {                                            
+    let qp = transition.queryParams;                                             
+                                                                                 
+    if (qp.token  && qp.PayerID) {                                               
+      this.spree.paypalExpress.confirm(qp.token, qp.PayerID)                     
+      .then(currentOrder => {                                                    
+        /* (?)
+        this.spree.get('checkouts').transition('complete').finally(() => {          
+          this.redirect();                                                       
+        });                                                                      
+        */
+      });                                                                        
+    }                                                                            
+  } 
+```
 
 ## Configuration
 
-In `config/environment.js` you can override the following values:
+In `config/environment.js` you can override the following default values:
 
 ```
 ENV['paypal-express'] = {
