@@ -51,7 +51,7 @@ the `spree` service so you can access it from anywhere in your code. Ex:
 When a payment is completed through PayPal, the page will redirect to
 the route `confirmUrl`.
 
-```bash
+```js
 // ENV['paypal-express'].confirmUrl
 // defaults to spree.checkout
 
@@ -75,7 +75,7 @@ the route `confirmUrl`.
 
 In `config/environment.js` you can override the following default values:
 
-```
+```js
 ENV['paypal-express'] = {
   paymentMethodId: 1,
   cancelUrl: 'cart',
