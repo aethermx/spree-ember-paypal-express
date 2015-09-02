@@ -6,7 +6,10 @@
 addon for the gem
 [better_spree_paypal_express](https://github.com/spree-contrib/better_spree_paypal_express)
 
-Currently this addon is meant to be used with Spree `2-4-stable`.
+Currently this addon is meant to be used with:
+
+  * Spree `2-4-stable`
+  * Ember 1.13
 
 ## Install
 
