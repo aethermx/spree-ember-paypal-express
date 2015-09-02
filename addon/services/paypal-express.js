@@ -2,13 +2,13 @@ import Ember from 'ember';
 
 export default Ember.Service.extend({
 
-  adapter: null,
+  spreeAdapter: null,
 
-  _loadAdapter: Ember.on('init', function() {
-    this.adapter = this.container.lookup('adapter:paypal');
+  _loadSpreeAdapter: Ember.on('init', function() {
+    this.spreeAdapter = this.container.lookup('adapter:spree');
   }),
 
-  /**
+  /*
     A copy of the "paypal-express" entry in the Host Application environment config.
     @property config
     @type Object
@@ -22,87 +22,141 @@ export default Ember.Service.extend({
   */
   spree: Ember.K,
 
-  _buildCancelUrl: function() {
-    let origin = window.location.origin + this.get('spree.config.mount');
-    return origin + '/' + this.get('config.cancelUrl');
-  },
-
-  _buildConfirmUrl: function() {
-    let origin = window.location.origin + this.get('spree.config.mount');
-    return origin + '/' + this.get('config.confirmUrl');
-  },
-
   /*
-    Ensures that the payment method configured in ENV['paypal-express'] is the
-    one selected for the order checkout.
+    @return {String} url 
   */
-  _setActivePayment: function() {
+  _buildUrl: function(routeName, paymentMethodId) {
+    // http://stackoverflow.com/a/21519355/7852
+    //let router = this.container.lookup('router:main').router;
+    let router = this.container.lookup('router:main').router;
 
-    let paymentMethodId = this.spree.paypalExpress.get('config.paymentMethodId');
+    let origin = window.location.origin;
 
-    let currentOrder = this.spree.get('currentOrder');
-    
-    // By setting the state of each payment
-    // a computed property in model:order will trigger and set
-    // the value for spree.currentOrder.activePayment
-    currentOrder.get('payments').forEach(payment => {
-      let paymentMethod = payment.get('paymentMethod');
-      if (paymentMethod.get('id') === '' + paymentMethodId) {
-        // We are defining payment details, thats the state Spree would use
-        payment.set('state', 'payment'); 
-      } else {
-        payment.set('state', 'invalid');
-      }
-    }); 
-
-    Ember.assert('An active payment has been enabled.',
-                 !isNaN(currentOrder.get('activePayment.paymentMethod.id')));
+    let url = origin +
+              router.generate(routeName) +
+              '?payment_method_id=' + paymentMethodId;
+    return url;
   },
 
   /*
-    Spree::Api::PaypalController#express
+    @return {PaymentMethod} paypal payment method 
+  */
+  _findPaypalPaymentMethod: function() {
+    let availablePaymentMethods = this.spree.get(
+      'currentOrder.availablePaymentMethods');
+    Ember.assert('availablePaymentMethods has at least 1 element',
+                 availablePaymentMethods.length);
+
+    let methodName = this.spree.paypalExpress.get('config.paymentMethodName');
+    let paypalMethods = availablePaymentMethods.filter(paymentMethod => {
+      return paymentMethod.get('name').indexOf(methodName) > -1; 
+    });
+    Ember.assert('paypalMethods has at least 1 element',
+                 paypalMethods.length);
+
+    return paypalMethods.get('firstObject');
+  },
+
+  /*
+    Spree::Api::Ams::PaypalController#express
 
     @method getRedirectUrl
     @return {Promise} promise
   */
   getRedirectUrl: function() {
-    this._setActivePayment();
+    let paymentMethod = this._findPaypalPaymentMethod();
+    let paymentMethodId = paymentMethod.get('id');
 
-    let url = this.adapter.buildURL('paypal'); 
+    let routeName = this.get('config.cancelRouteName');
+    let cancelUrl = this._buildUrl(routeName, paymentMethodId);
+
+    routeName = this.get('config.confirmRouteName');
+    let confirmUrl = this._buildUrl(routeName, paymentMethodId);
 
     let params = {
       data: {
-        order_id: this.get('spree.orderId'),
-        payment_method_id: this.get('config.paymentMethodId'),
-        cancel_url: this._buildCancelUrl(),
-        confirm_url: this._buildConfirmUrl() 
+        payment_method_id: paymentMethodId,
+        cancel_url: cancelUrl,
+        confirm_url: confirmUrl 
       }
     };
 
-    return this.adapter.ajax(url, 'POST', params);
+    let url = this.spreeAdapter.buildURL('paypal'); 
+
+    return this.spreeAdapter.ajax(url, 'POST', params);
   },
 
   /*
-    Spree::Api::PaypalController#confirm
+    Spree::Api::Ams::PaypalController#confirm
+
+    After the payment is completed, this function is used to confirm an order
+    with the Spree backend.
 
     @method confirm 
+    @param  {Number}  paymentMethodId 
     @param  {String}  token 
     @param  {String}  PayerID 
-    @return {Promise} order 
+    @return {Promise} 
   */
-  confirm: function(token, PayerID) {
-    let url = [this.adapter.buildURL('paypal'), 'confirm'].join('/'); 
+  confirm: function(paymentMethodId, token, PayerID) {
+    let url = [this.spreeAdapter.buildURL('paypal'), 'confirm'].join('/'); 
+
+    Ember.assert('paymentMethodId has a valid value', !isNaN(paymentMethodId));
+    Ember.assert('token has a valid value', typeof token === 'string');
+    Ember.assert('PayerID has a valid value', typeof PayerID === 'string');
 
     let params = {
       data: {
-        order_id: this.get('spree.orderId'),
-        payment_method_id: this.get('config.paymentMethodId'),
+        payment_method_id: paymentMethodId,
         token: token,
         PayerID: PayerID
       }
     };
 
-    return this.adapter.ajax(url, 'POST', params);
+    return this.spreeAdapter.ajax(url, 'POST', params);
+  },
+
+  /*
+    Confirms an order with the backend and advances the state of the order in
+    the frontend.
+
+    Confirms a PayPal payment and transitions the checkout state machine to the
+    state 'complete'.
+ 
+    @method confirm 
+    @param  {Number}  paymentMethodId 
+    @param  {String}  token 
+    @param  {String}  PayerID 
+    @return {Promise} checkout transition that resolves to the 'complete' state 
+  */
+  confirmOrder: function(paymentMethodId, token, PayerID) {
+    let confirmPromise = this.confirm(paymentMethodId, token, PayerID);
+
+    let reloadOrderPromise = confirmPromise.then((/*jsonOrder*/) => {                                     
+      let currentOrder = this.spree.get('currentOrder');                         
+      // now we reload the order so that we have the latest payment state                       
+      return currentOrder.reload();
+    });
+
+    let transitionPromise = reloadOrderPromise.then((/*jsonOrder*/) => {
+      let reloadedOrder = this.spree.get('currentOrder');
+
+      // workaround for spree ember's finite state machine here
+      // https://github.com/hhff/spree-ember/blob/master/packages/checkouts/app/services/checkouts.js#L223
+      // has a callback that adds an empty payment record that if you try to save breaks saving the paypal payment.
+      //
+      // dont know what it is for but I imagine just to make serializing the order work regardless 
+      // of whether or not you have entered your credit card info or not yet with the other payment types
+      //
+      // a cleaner way of doing things would involve adding the changes discussed in
+      // https://gitter.im/hhff/spree-ember/archives/2015/08/10
+      reloadedOrder.get('payments')
+      .filterBy('id', null).invoke('deleteRecord');
+
+      return this.spree.get('checkouts').transition('complete');
+    }); // reloadPromise
+
+    return transitionPromise;
   }
 
 });

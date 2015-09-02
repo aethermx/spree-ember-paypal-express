@@ -43,5 +43,9 @@ module.exports = function(environment) {
 
   }
 
+  ENV['paypal-express'] = {
+    confirmRouteName: 'home.thankyou'
+  };
+
   return ENV;
 };

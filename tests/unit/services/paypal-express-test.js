@@ -7,6 +7,6 @@ moduleFor('service:paypal-express', 'Unit | Service | paypal express', {
 
 // Replace this with your real tests.
 test('it exists', function(assert) {
-  var service = this.subject();
+  let service = this.subject();
   assert.ok(service);
 });

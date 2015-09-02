@@ -22,15 +22,13 @@ The following fork of `better_spree_paypal_express` is needed because it has two
  * The changes of [PR #168](https://github.com/spree-contrib/better_spree_paypal_express/pull/168)
  * `active_model_serializers` version `0.8.2`
 
-Gemfile
+Add to your Gemfile:
 
     gem 'spree_paypal_express', github: 'givanse/better_spree_paypal_express', branch: 'ams_0.8.2'
 
 ### Frontend
 
-package.js
-
-    "spree-ember-storefront": "0.0.1-beta.1"
+  * [spree-ember-storefront](http://www.spree-ember.com/storefront/index.html) - 0.0.1-beta.1
 
 ## Usage
 
@@ -49,27 +47,37 @@ the `spree` service so you can access it from anywhere in your code. Ex:
 ```
 
 When a payment is completed through PayPal, the page will redirect to
-the route `confirmUrl`.
+the route `confirmRouteName`.
+In that route you'll be able to complete the order. Ex: 
 
 ```js
-// ENV['paypal-express'].confirmUrl
+// ENV['paypal-express'].confirmRouteName
 // defaults to spree.checkout
 
   beforeModel: function(transition) {                                            
-    let qp = transition.queryParams;                                             
-                                                                                 
-    if (qp.token  && qp.PayerID) {                                               
-      this.spree.paypalExpress.confirm(qp.token, qp.PayerID)                     
-      .then(currentOrder => {                                                    
-        /* (?)
-        this.spree.get('checkouts').transition('complete').finally(() => {          
-          this.redirect();                                                       
-        });                                                                      
-        */
-      });                                                                        
-    }                                                                            
+    let qp = transition.queryParams;
+
+    let paymentMethodId = qp.payment_method_id;
+    let token = qp.token;
+    let PayerID = qp.PayerID;
+
+    if (!paymentMethodId || !token || !PayerID) {
+      return true;
+    }
+
+    this.spree.paypalExpress.confirmOrder(paymentMethodId, token, PayerID)
+    .then(() => {
+      // the confirmation is done and the order has been advanced to complete
+
+      // redirect is a method already provided by spree-ember
+      this.redirect();
+    });
   } 
 ```
+
+To have more control during the confirmation phase you can use just the method
+`this.spree.paypalExpress.confirm`. You can use the `confirmOrder` implementation
+as a guide.
 
 ## Configuration
 
@@ -77,18 +85,18 @@ In `config/environment.js` you can override the following default values:
 
 ```js
 ENV['paypal-express'] = {
-  paymentMethodId: 1,
-  cancelUrl: 'cart',
-  confirmUrl: 'checkout'  
+  paymentMethodName: 'PayPal',
+  cancelRouteName: 'spree.cart',
+  confirmRouteName: 'spree.checkout'  
 }
 ```
 
-`paymentMethodId` is the `id` of the `better_spree_paypal_express` payment method
-that you want to use for every order. You must have configured this through the Spree admin.
+`paymentMethodName` is the name of the `better_spree_paypal_express` payment method
+that you want to use for every order. You configured that name through the Spree admin.
 
-`cancelUrl` is the spree-ember route where the user is directed after clicking the "cancel" link in the PayPal pay screen.
+`cancelRouteName` is the route where the user is directed to after clicking the "cancel" link in the PayPal pay screen.
 
-`confirmUrl` is the spree-ember route where the user is directed after completing the payment process with PayPal.
+`confirmRouteName` is the route where the user is directed to after completing the payment process with PayPal.
 
 # Development
 
@@ -113,3 +121,8 @@ that you want to use for every order. You must have configured this through the 
 * `ember build`
 
 For more information on using ember-cli, visit [http://www.ember-cli.com/](http://www.ember-cli.com/).
+
+---
+
+Thanks to @hhff and @williscool for all the help given in the
+[spree-ember](https://gitter.im/hhff/spree-ember) gitter room.

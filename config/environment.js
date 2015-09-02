@@ -3,9 +3,9 @@
 module.exports = function(/* environment, appConfig */) {
   return { 
     'paypal-express': {
-      paymentMethodId: '1',
-      cancelUrl: 'cart',
-      confirmUrl: 'checkout'  
+      paymentMethodName: 'PayPal',
+      cancelRouteName: 'spree.cart',
+      confirmRouteName: 'spree.checkout'  
     }
   };
 };
