@@ -1,6 +1,6 @@
 # Spree-ember-paypal-express
-[![Build Status](https://travis-ci.org/givanse/spree-ember-paypal-express.svg?branch=master)](https://travis-ci.org/givanse/spree-ember-paypal-express)
-[![Code Climate](https://codeclimate.com/github/givanse/spree-ember-paypal-express/badges/gpa.svg)](https://codeclimate.com/github/givanse/spree-ember-paypal-express)
+[![Build Status](https://travis-ci.org/aethermx/spree-ember-paypal-express.svg?branch=master)](https://travis-ci.org/aethermx/spree-ember-paypal-express)
+[![Code Climate](https://codeclimate.com/github/aethermx/spree-ember-paypal-express/badges/gpa.svg)](https://codeclimate.com/github/aethermx/spree-ember-paypal-express)
 
 [spree-ember](https://github.com/hhff/spree-ember)
 addon for the gem
