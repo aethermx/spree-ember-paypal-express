@@ -1,6 +1,7 @@
 # Spree-ember-paypal-express
 [![Build Status](https://travis-ci.org/aethermx/spree-ember-paypal-express.svg?branch=master)](https://travis-ci.org/aethermx/spree-ember-paypal-express)
 [![Code Climate](https://codeclimate.com/github/aethermx/spree-ember-paypal-express/badges/gpa.svg)](https://codeclimate.com/github/aethermx/spree-ember-paypal-express)
+[![Ember Observer Score](http://emberobserver.com/badges/spree-ember-paypal-express.svg)](http://emberobserver.com/addons/spree-ember-paypal-express)
 
 [spree-ember](https://github.com/hhff/spree-ember)
 addon for the gem
@@ -101,25 +102,25 @@ that you want to use for every order. You configured that name through the Spree
 
 `confirmRouteName` is the route where the user is directed to after completing the payment process with PayPal.
 
-# Development
+## Development
 
-## Installation
+### Installation
 
 * `git clone` this repository
 * `npm install`
 * `bower install`
 
-## Running
+### Running
 
 * `ember server`
 * Visit your app at http://localhost:4200.
 
-## Running Tests
+### Running Tests
 
 * `ember test`
 * `ember test --server`
 
-## Building
+### Building
 
 * `ember build`
 
@@ -129,3 +130,11 @@ For more information on using ember-cli, visit [http://www.ember-cli.com/](http:
 
 Thanks to @hhff and @williscool for all the help given in the
 [spree-ember](https://gitter.im/hhff/spree-ember) gitter room.
+
+## Legal
+
+[Æther](http://aether.mx/)
+
+hello@aether.mx
+
+[Licensed under the MIT license](http://opensource.org/licenses/mit-license.php)
