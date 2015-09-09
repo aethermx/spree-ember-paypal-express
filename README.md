@@ -10,11 +10,10 @@ addon for the gem
 Currently this addon is meant to be used with:
 
   * Spree `2-4-stable`
-  * Ember 1.13
+  * Ember `1.13`
 
 ## Install
 
-    # not available yet, coming soon
     ember install spree-ember-paypal-express
 
 ## Dependencies
@@ -80,7 +79,8 @@ In that route you'll be able to complete the order. Ex:
 ```
 
 To have more control during the confirmation phase you can use just the method
-`this.spree.paypalExpress.confirm`. You can use the `confirmOrder` implementation
+`this.spree.paypalExpress.confirm`. You can use the `confirmOrder`
+[implementation](https://github.com/aethermx/spree-ember-paypal-express/blob/master/addon/services/paypal-express.js#L132)
 as a guide.
 
 ## Configuration
